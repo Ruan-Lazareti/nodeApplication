@@ -58,6 +58,21 @@ class UserController {
 
     return response.json()
   }
+
+  async index(request, response) {
+    const user = await knex("users")
+
+    console.log(user)
+
+    return response.json(user)
+  }
+
+  async view(request, response) {
+    const { id } = request.params
+    const user = await knex("users").where({id})
+
+    response.json(user)
+  }
 }
 
 module.exports = UserController
