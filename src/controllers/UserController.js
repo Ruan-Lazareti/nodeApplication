@@ -25,6 +25,39 @@ class UserController {
 
     return response.status(201).json()
   }
+
+  async update(request, response) {
+    const { name, email, password, oldPassword } = request.body
+    const { id } = request.params
+    const [user] = await knex("users").where({id})
+    let newPassword
+
+    if (password) {
+      if (!oldPassword) {
+        throw new AppError("É necessário informar a senha antiga.")
+      }
+    }
+
+    if (oldPassword) {
+      if (!password) {
+        throw new AppError("É necessário informar a nova senha")
+      }
+    }
+
+    if (password && oldPassword) {
+      const verifyPassword = await compare(oldPassword, user.password)
+
+      if(!verifyPassword) {
+        throw new AppError('Senha anterior está incorreta!')
+      }
+
+      newPassword = await hash(password, 8)
+    }
+
+    await knex("users").where({id}).update({name, email, password: newPassword, updated_at: knex.fn.now()})
+
+    return response.json()
+  }
 }
 
 module.exports = UserController
