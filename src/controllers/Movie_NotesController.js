@@ -33,6 +33,41 @@ class Movie_NotesController {
 
     return response.json()
   }
+
+  async index(request, response) {
+    const [movieNotes] = await knex("movie_notes")
+    const movieTags = await knex("movie_tags").where("movie_id", movieNotes.id)
+    const tags = movieTags.map(tag => {
+      return(tag.name)
+    })
+
+    const data = {
+      movieId: movieNotes.id, 
+      movieTitle: movieNotes.title,
+      movieDescription: movieNotes.description,
+      movieRating: movieNotes.rating,
+      movieTags: tags}
+
+    return response.json(data)
+  }
+
+  async show(request, response) {
+    const { title } = request.params
+    const [movieNotes] = await knex("movie_notes").whereLike("title", `%${title}%`)
+    const movieTags = await knex("movie_tags").where("movie_id", movieNotes.id)
+    const tags = movieTags.map(tag => {
+      return(tag.name)
+    })
+
+    const data = {
+      movieId: movieNotes.id, 
+      movieTitle: movieNotes.title,
+      movieDescription: movieNotes.description,
+      movieRating: movieNotes.rating,
+      movieTags: tags}
+
+    return response.json(data)
+  }
 }
 
 module.exports = Movie_NotesController
