@@ -34,6 +34,14 @@ class Movie_NotesController {
     return response.json()
   }
 
+  async delete(request, response) {
+    const {title} = request.query
+
+    await knex("movie_notes").whereLike("title", `%${title}%`).del()
+
+    return response.json()
+  }
+
   async index(request, response) {
     const [movieNotes] = await knex("movie_notes")
     const movieTags = await knex("movie_tags").where("movie_id", movieNotes.id)
