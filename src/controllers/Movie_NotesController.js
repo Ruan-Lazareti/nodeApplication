@@ -3,7 +3,7 @@ const AppError = require("../utils/AppError.js")
 
 class Movie_NotesController {
   async create(request, response) {
-    const { title, description, rating, tag } = request.body
+    const { title, description, rating, tags } = request.body
     const { user_id } = request.params
     const verifyRating = rating >= 0
 
@@ -15,7 +15,21 @@ class Movie_NotesController {
       throw new AppError("O número informado é superior a nota máxima (5).")
     }
 
-    await knex("movie_notes").insert({title, description, rating, user_id})
+    if(!title) {
+      throw new AppError("O título do filme deve ser informado.")
+    }
+
+    const [movie_id] = await knex("movie_notes").insert({title, description, rating, user_id})
+
+    const tagsInsert = tags.map(name => {
+      return {
+        movie_id,
+        user_id,
+        name
+      }
+    })
+
+    await knex("movie_tags").insert(tagsInsert)
 
     return response.json()
   }
